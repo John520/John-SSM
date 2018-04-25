@@ -3,9 +3,32 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.john.ssm.dao.ProductMapper">
-    <select id="findProductById" parameterType="int" resultType="com.john.ssm.bean.Product">
-        SELECT *
-        FROM PRODUCTS
-        WHERE id = #{id}
+    <select id="findProductById" parameterType="int" resultMap="productMap">
+        SELECT  p.*, c.*
+        FROM PRODUCTS p ,CATEGORYS c, PRODUCT_CATEGORY pc
+        WHERE   p.id=pc.prod_id AND  pc.cate_id= c.cate_id AND p.id = #{id}
     </select>
+    <select id="findAllProduct"  resultMap="productMap">
+        SELECT  p.*, c.*
+        FROM PRODUCTS p ,CATEGORYS c, PRODUCT_CATEGORY pc
+        WHERE   p.id=pc.prod_id AND  pc.cate_id= c.cate_id
+    </select>
+
+    <resultMap id="productMap" type="com.john.ssm.bean.Product">
+        <id property="id" column="id"></id>
+        <result property="name" column="name"></result>
+        <collection property="categorys" ofType="com.john.ssm.bean.Category">
+            <id column="cate_id" property="id"></id>
+            <result column="cate_name" property="name"></result>
+            <result column="cate_details" property="details"></result>
+        </collection>
+
+    </resultMap>
+
+    <insert id="insertProduct" parameterType="com.john.ssm.bean.Product" >
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT  INTO  PRODUCTS ( name) VALUES (#{name})
+    </insert>
 </mapper>
